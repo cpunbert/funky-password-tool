@@ -2,14 +2,22 @@ use rand::Rng; /*should be replaced in the future */
 static PASSWORD_CHAR_SET: &str =
     "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ0123456789~`!@#$%^&*()-_+={}[]|;:<>,./?";
 fn main() {
+    let input: Vec<String> = std::env::args().skip(1).collect();
     let pas1 = new_entry(
         String::from("amazon"),
         String::from("maupa@gmail.com"),
         PasswordStrength::SpecialCharacters,
         32,
     );
-    println!("{a}", a = pas1.password);
+    for argument in &input {
+        println!("{argument}")
+    }
+    input_parse(input);
 }
+fn input_parse(input: Vec<String>) {
+    input[0].parse::<usize>().expect("Not a u size");
+}
+//fn another_parse(input: Vec<String>) -> Result<i32> {}
 
 fn generate_password(password_strength: PasswordStrength, password_length: usize) -> String {
     let mut rng = rand::rng();

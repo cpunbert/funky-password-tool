@@ -1,0 +1,14 @@
+CLI parse
+generate password from cli arguments
+    FPL new name login pass_len pass_str
+    ?password_generator struct?
+
+organize functions into seperate files
+
+
+save data into json
+hash passwords
+
+
+make own rng
+steganography
