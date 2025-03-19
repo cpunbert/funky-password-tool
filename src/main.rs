@@ -3,21 +3,26 @@ static PASSWORD_CHAR_SET: &str =
     "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ0123456789~`!@#$%^&*()-_+={}[]|;:<>,./?";
 fn main() {
     let input: Vec<String> = std::env::args().skip(1).collect();
-    let pas1 = new_entry(
-        String::from("amazon"),
-        String::from("maupa@gmail.com"),
-        PasswordStrength::SpecialCharacters,
-        32,
-    );
     for argument in &input {
         println!("{argument}")
     }
-    input_parse(input);
+
+    let one = PasswordEntry::new(
+        String::from("google"),
+        String::from("adam.nowak@gmail.com"),
+        PasswordStrength::SpecialCharacters,
+        40,
+    );
+    let two = PasswordEntry::new2(input);
+    one.display();
+    two.display();
 }
 fn input_parse(input: Vec<String>) {
-    input[0].parse::<usize>().expect("Not a u size");
+    let args = input[0].parse::<usize>().expect("Not a u size");
+    println!("{args}")
 }
 //fn another_parse(input: Vec<String>) -> Result<i32> {}
+//TODO: FIX function above
 
 fn generate_password(password_strength: PasswordStrength, password_length: usize) -> String {
     let mut rng = rand::rng();
@@ -42,12 +47,28 @@ struct PasswordEntry {
     login: String,
     password: String,
 }
-fn new_entry(name: String, login: String, str: PasswordStrength, len: usize) -> PasswordEntry {
-    return PasswordEntry {
-        name: name,
-        login: login,
-        password: generate_password(str, len),
-    };
+
+impl PasswordEntry {
+    fn new(name: String, login: String, pas_str: PasswordStrength, pas_len: usize) -> Self {
+        PasswordEntry {
+            name: name,
+            login: login,
+            password: generate_password(pas_str, pas_len),
+        }
+    }
+    fn new2(input: Vec<String>) -> Self {
+        PasswordEntry {
+            name: input[0].to_owned(),
+            login: input[1].to_owned(),
+            password: generate_password(PasswordStrength::Uppercase, 40),
+        }
+    }
+    fn display(&self) {
+        println!(
+            "\n name:     {}\n login:    {}\n password: {} ",
+            self.name, self.login, self.password
+        )
+    }
 }
 
 enum PasswordStrength {
