@@ -1,12 +1,17 @@
+use std::io;
+
 use rand::Rng; /*should be replaced in the future */
 static PASSWORD_CHAR_SET: &str =
     "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ0123456789~`!@#$%^&*()-_+={}[]|;:<>,./?";
 fn main() {
-    let input: Vec<String> = std::env::args().skip(1).collect();
+    let mut input: Vec<String> = std::env::args().skip(1).collect();
     for argument in &input {
         println!("{argument}")
     }
-
+    let asd = input[0].to_owned();
+    for argument in &input {
+        println!("{argument}")
+    }
     let one = PasswordEntry::new(
         String::from("google"),
         String::from("adam.nowak@gmail.com"),
@@ -17,11 +22,16 @@ fn main() {
     one.display();
     two.display();
 }
+//? ditch enum, instead match 3rd arg as stren,
+//parse command line args one by one into variables???? and do stuff afterwards
+//parse by .remove(0)???
 fn input_parse(input: Vec<String>) {
     let args = input[0].parse::<usize>().expect("Not a u size");
     println!("{args}")
 }
-//fn another_parse(input: Vec<String>) -> Result<i32> {}
+fn another_parse(input: Vec<String>) -> Result<Command, ()> {
+    Ok(Command::Display)
+}
 //TODO: FIX function above
 
 fn generate_password(password_strength: PasswordStrength, password_length: usize) -> String {
@@ -56,11 +66,11 @@ impl PasswordEntry {
             password: generate_password(pas_str, pas_len),
         }
     }
-    fn new2(input: Vec<String>) -> Self {
+    fn new2(mut input: Vec<String>) -> Self {
         PasswordEntry {
-            name: input[0].to_owned(),
-            login: input[1].to_owned(),
-            password: generate_password(PasswordStrength::Uppercase, 40),
+            name: input.remove(0),
+            login: input.remove(0),
+            password: generate_password(PasswordStrength::SpecialCharacters, 40),
         }
     }
     fn display(&self) {
@@ -76,4 +86,10 @@ enum PasswordStrength {
     Uppercase,
     Numbers,
     SpecialCharacters,
+}
+
+enum Command {
+    Display,
+    New(Vec<String>, [usize; 2]),
+    Edit(Vec<String>, [usize; 3]),
 }
