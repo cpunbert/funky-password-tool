@@ -1,4 +1,4 @@
-use std::io;
+use std::io::Error;
 
 use rand::Rng; /*should be replaced in the future */
 static PASSWORD_CHAR_SET: &str =
@@ -8,7 +8,6 @@ fn main() {
     for argument in &input {
         println!("{argument}")
     }
-    let asd = input[0].to_owned();
     for argument in &input {
         println!("{argument}")
     }
@@ -24,13 +23,18 @@ fn main() {
 }
 //? ditch enum, instead match 3rd arg as stren,
 //parse command line args one by one into variables???? and do stuff afterwards
-//parse by .remove(0)???
-fn input_parse(input: Vec<String>) {
-    let args = input[0].parse::<usize>().expect("Not a u size");
-    println!("{args}")
+fn pinp(mut input: Vec<String>) -> Result<Command, Error> {
+    let command = input[0].to_lowercase().as_str();
+    let arg0 = input.remove(1).parse::<usize>();
+    Ok(Command::Display(vec![input[0]], (arg0, arg0)))
 }
-fn another_parse(input: Vec<String>) -> Result<Command, ()> {
-    Ok(Command::Display)
+fn parse_input(mut input: Vec<String>) -> Result<Command, ()> {
+    match input[0].to_lowercase().as_str() {
+        "show" => Ok(Command::Display),
+        "new" => Ok(Command::New(input)),
+        "edit" => Ok(Command::Edit(input)),
+        _ => Err(()),
+    }
 }
 //TODO: FIX function above
 
@@ -89,7 +93,7 @@ enum PasswordStrength {
 }
 
 enum Command {
-    Display,
-    New(Vec<String>, [usize; 2]),
-    Edit(Vec<String>, [usize; 3]),
+    Display(Vec<String>, (usize, usize)),
+    New(Vec<String>),
+    Edit(Vec<String>),
 }
