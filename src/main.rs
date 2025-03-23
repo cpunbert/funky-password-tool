@@ -1,4 +1,4 @@
-use std::{f32::consts::E, io::Error, num::ParseIntError};
+use std::{f32::consts::E, fs::read, io::Error, num::ParseIntError};
 
 use rand::Rng; /*should be replaced in the future */
 static PASSWORD_CHAR_SET: &str =
@@ -17,9 +17,11 @@ fn main() {
         PasswordStrength::SpecialCharacters,
         40,
     );
-    let two = PasswordEntry::new2(input);
     one.display();
-    two.display();
+    match PasswordEntry::new2(input) {
+        Ok(entry) => entry.display(),
+        Err(_) => println!("couldnt display entry"),
+    }
 }
 /*fn parse_usize(str: String) -> Result<usize, ParseIntError> {
     let arg = str.parse::<usize>()?;
@@ -28,7 +30,7 @@ fn main() {
 // parse input with .expect() just to make it work
 fn parse_input(mut input: Vec<String>) -> Result<Command, ()> {
     match input[0].to_lowercase().as_str() {
-        "show" => Ok(Command::Display()),
+        "show" => Ok(Command::Show()),
         "new" => Ok(Command::New(input)),
         "edit" => Ok(Command::Edit(input)),
         _ => Err(()),
@@ -67,13 +69,28 @@ impl PasswordEntry {
             password: generate_password(pas_str, pas_len),
         }
     }
-    fn new2(mut input: Vec<String>) -> Self {
-        PasswordEntry {
-            name: input.remove(0),
-            login: input.remove(0),
-            password: generate_password(PasswordStrength::SpecialCharacters, 40),
-        }
+    fn new2(mut input: Vec<String>) -> Result<Self, ()> {
+        let name = input.remove(0);
+        let login = input.remove(0);
+        let pas_str = match input.remove(0).as_str() {
+            "1" => PasswordStrength::Lowercase,
+            "2" => PasswordStrength::Uppercase,
+            "3" => PasswordStrength::Numbers,
+            "4" => PasswordStrength::SpecialCharacters,
+            _ => return Err(()),
+        };
+        let pas_len = match input.remove(0).parse::<usize>() {
+            Ok(len) => len,
+            Err(_) => return Err(()),
+        };
+        let result = PasswordEntry {
+            name: name,
+            login: login,
+            password: generate_password(pas_str, pas_len),
+        };
+        Ok(result)
     }
+
     fn display(&self) {
         println!(
             "\n name:     {}\n login:    {}\n password: {} ",
@@ -90,7 +107,7 @@ enum PasswordStrength {
 }
 
 enum Command {
-    Display(),
+    Show(),
     New(Vec<String>),
     Edit(Vec<String>),
 }
