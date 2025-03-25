@@ -10,7 +10,13 @@ fn main() {
         PasswordStrength::SpecialCharacters,
         40,
     );
-    let asd = new2(input, password_list)?;
+    password_list.push(one);
+    if let Ok(list) = new2(input, password_list) {
+        password_list = list;
+        for entry in password_list {
+            entry.display();
+        }
+    }
 }
 
 fn parse_input(mut input: Vec<String>) -> Result<Command, ()> {
