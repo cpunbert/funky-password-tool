@@ -1,14 +1,13 @@
 CLI parse
 FPL new name login pass_len pass_str
 
-Somehow save password entries into json or another file
-
 make proper function names
 organize functions into seperate files
 make command.rs file
 
 
 save data into json
+
 hash passwords
 
 

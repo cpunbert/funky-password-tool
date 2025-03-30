@@ -1,18 +1,43 @@
-use rand::Rng; /*should be replaced in the future */
+use std::fs::read_to_string;
+
+use rand::Rng;
 static PASSWORD_CHAR_SET: &str =
-    "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ0123456789~`!@#$%^&*()-_+={}[]|;:<>,./?";
-fn main() {
+    "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ0123456789~`!@#$%^&*()-_+={}[]|:<>,./?";
+fn main() -> std::io::Result<()> {
     let mut input: Vec<String> = std::env::args().skip(1).collect();
     let mut password_list = Vec::<PasswordEntry>::new();
     let one = PasswordEntry::new(
         String::from("google"),
         String::from("adam.nowak@gmail.com"),
-        PasswordStrength::SpecialCharacters,
-        40,
+        String::from("password"),
     );
     password_list.push(one);
     let asd = parse_input(input);
     asd.execute(password_list);
+
+    let entries = open_csv("passwords.csv").unwrap();
+    for entry in entries {
+        entry.display();
+    }
+
+    Ok(())
+}
+fn open_csv(path: &str) -> Result<Vec<PasswordEntry>, ()> {
+    let Ok(data) = read_to_string(path) else {
+        return Err(());
+    };
+    let mut lines: Vec<String> = data.lines().map(String::from).collect();
+    let mut list_of_entries = Vec::<PasswordEntry>::with_capacity(lines.len());
+    for line in lines {
+        let mut x: Vec<&str> = line.split(';').collect();
+        let entry = PasswordEntry::new(
+            String::from(x.remove(0)),
+            String::from(x.remove(0)),
+            String::from(x.remove(0)),
+        );
+        list_of_entries.push(entry);
+    }
+    Ok(list_of_entries)
 }
 
 fn parse_input(mut input: Vec<String>) -> Command {
@@ -33,7 +58,7 @@ fn generate_password(password_strength: PasswordStrength, password_length: usize
         PasswordStrength::Lowercase => &PASSWORD_CHAR_SET[0..26],
         PasswordStrength::Uppercase => &PASSWORD_CHAR_SET[0..52],
         PasswordStrength::Numbers => &PASSWORD_CHAR_SET[0..62],
-        PasswordStrength::SpecialCharacters => &PASSWORD_CHAR_SET[0..91],
+        PasswordStrength::SpecialCharacters => &PASSWORD_CHAR_SET[0..90],
     };
     let mut password = String::new();
     while (password.len() < password_length) {
@@ -81,11 +106,11 @@ fn new(mut input: Vec<String>, mut list: Vec<PasswordEntry>) -> Vec<PasswordEntr
 }
 
 impl PasswordEntry {
-    fn new(name: String, login: String, pas_str: PasswordStrength, pas_len: usize) -> Self {
+    fn new(name: String, login: String, password: String) -> Self {
         PasswordEntry {
-            name: name,
-            login: login,
-            password: generate_password(pas_str, pas_len),
+            name,
+            login,
+            password,
         }
     }
 
