@@ -11,11 +11,9 @@ fn main() {
         40,
     );
     password_list.push(one);
-    if let Ok(list) = new2(input, password_list) {
-        password_list = list;
-        for entry in password_list {
-            entry.display();
-        }
+    let password_list = new2(input, password_list);
+    for entry in password_list {
+        entry.display();
     }
 }
 
@@ -52,7 +50,7 @@ struct PasswordEntry {
     password: String,
 }
 
-fn new2(mut input: Vec<String>, mut list: Vec<PasswordEntry>) -> Result<Vec<PasswordEntry>, ()> {
+fn new2(mut input: Vec<String>, mut list: Vec<PasswordEntry>) -> Vec<PasswordEntry> {
     let name = input.remove(0);
     let login = input.remove(0);
     let pas_str = match input.remove(0).as_str() {
@@ -60,11 +58,17 @@ fn new2(mut input: Vec<String>, mut list: Vec<PasswordEntry>) -> Result<Vec<Pass
         "2" => PasswordStrength::Uppercase,
         "3" => PasswordStrength::Numbers,
         "4" => PasswordStrength::SpecialCharacters,
-        _ => return Err(()),
+        _ => {
+            println!("Invalid password strength");
+            return list;
+        }
     };
     let pas_len = match input.remove(0).parse::<usize>() {
         Ok(len) => len,
-        Err(_) => return Err(()),
+        Err(_) => {
+            println!("Invalid password length");
+            return list;
+        }
     };
     let result = PasswordEntry {
         name,
@@ -72,7 +76,7 @@ fn new2(mut input: Vec<String>, mut list: Vec<PasswordEntry>) -> Result<Vec<Pass
         password: generate_password(pas_str, pas_len),
     };
     list.push(result);
-    Ok(list)
+    list
 }
 
 impl PasswordEntry {
