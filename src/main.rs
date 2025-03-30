@@ -11,18 +11,19 @@ fn main() {
         40,
     );
     password_list.push(one);
-    let password_list = new2(input, password_list);
-    for entry in password_list {
-        entry.display();
-    }
+    let asd = parse_input(input);
+    asd.execute(password_list);
 }
 
-fn parse_input(mut input: Vec<String>) -> Result<Command, ()> {
-    match input[0].to_lowercase().as_str() {
-        "show" => Ok(Command::Show()),
-        "new" => Ok(Command::New(input)),
-        "edit" => Ok(Command::Edit(input)),
-        _ => Err(()),
+fn parse_input(mut input: Vec<String>) -> Command {
+    match input.remove(0).to_lowercase().as_str() {
+        "show" => Command::Show(),
+        "new" => Command::New(input),
+        "edit" => Command::Edit(input),
+        _ => {
+            println!("Invalid command");
+            Command::None()
+        }
     }
 }
 
@@ -50,7 +51,7 @@ struct PasswordEntry {
     password: String,
 }
 
-fn new2(mut input: Vec<String>, mut list: Vec<PasswordEntry>) -> Vec<PasswordEntry> {
+fn new(mut input: Vec<String>, mut list: Vec<PasswordEntry>) -> Vec<PasswordEntry> {
     let name = input.remove(0);
     let login = input.remove(0);
     let pas_str = match input.remove(0).as_str() {
@@ -107,4 +108,50 @@ enum Command {
     Show(),
     New(Vec<String>),
     Edit(Vec<String>),
+    None(),
+}
+
+impl Command {
+    fn execute(self, mut list: Vec<PasswordEntry>) -> Vec<PasswordEntry> {
+        match self {
+            Self::Show() => {
+                for entry in &list {
+                    entry.display();
+                }
+                return list;
+            }
+            Self::New(mut input) => {
+                let name = input.remove(0);
+                let login = input.remove(0);
+                let pas_str = match input.remove(0).as_str() {
+                    "1" => PasswordStrength::Lowercase,
+                    "2" => PasswordStrength::Uppercase,
+                    "3" => PasswordStrength::Numbers,
+                    "4" => PasswordStrength::SpecialCharacters,
+                    _ => {
+                        println!("Invalid password strength");
+                        return list;
+                    }
+                };
+                let pas_len = match input.remove(0).parse::<usize>() {
+                    Ok(len) => len,
+                    Err(_) => {
+                        println!("Invalid password length");
+                        return list;
+                    }
+                };
+                let result = PasswordEntry {
+                    name,
+                    login,
+                    password: generate_password(pas_str, pas_len),
+                };
+                list.push(result);
+                println!("Entry added succesfully");
+                list
+            }
+            //FOR LATER: implement edit command
+            Self::Edit(input) => list,
+            Self::None() => list,
+        }
+    }
 }
