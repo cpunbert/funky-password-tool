@@ -1,24 +1,16 @@
-use std::fs::read_to_string;
+use std::fs::{read_to_string, write};
 
 use rand::Rng;
+static DATA_PATH: &str = "data/passwords.csv";
 static PASSWORD_CHAR_SET: &str =
     "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ0123456789~`!@#$%^&*()-_+={}[]|:<>,./?";
 fn main() -> std::io::Result<()> {
-    let mut input: Vec<String> = std::env::args().skip(1).collect();
-    let mut password_list = Vec::<PasswordEntry>::new();
-    let one = PasswordEntry::new(
-        String::from("google"),
-        String::from("adam.nowak@gmail.com"),
-        String::from("password"),
-    );
-    password_list.push(one);
+    let input: Vec<String> = std::env::args().skip(1).collect();
+    let password_list = open_csv(DATA_PATH).unwrap();
     let asd = parse_input(input);
-    asd.execute(password_list);
+    let password_list = asd.execute(password_list);
 
-    let entries = open_csv("passwords.csv").unwrap();
-    for entry in entries {
-        entry.display();
-    }
+    save_to_csv(DATA_PATH, password_list);
 
     Ok(())
 }
@@ -26,7 +18,7 @@ fn open_csv(path: &str) -> Result<Vec<PasswordEntry>, ()> {
     let Ok(data) = read_to_string(path) else {
         return Err(());
     };
-    let mut lines: Vec<String> = data.lines().map(String::from).collect();
+    let lines: Vec<String> = data.lines().map(String::from).collect();
     let mut list_of_entries = Vec::<PasswordEntry>::with_capacity(lines.len());
     for line in lines {
         let mut x: Vec<&str> = line.split(';').collect();
@@ -39,12 +31,28 @@ fn open_csv(path: &str) -> Result<Vec<PasswordEntry>, ()> {
     }
     Ok(list_of_entries)
 }
+fn save_to_csv(path: &str, data: Vec<PasswordEntry>) {
+    let mut result = String::new();
+    for entry in data {
+        let x = entry.name;
+        let y = entry.login;
+        let z = entry.password;
+        result.push_str(&x);
+        result.push(';');
+        result.push_str(&y);
+        result.push(';');
+        result.push_str(&z);
+        result.push('\n');
+    }
+    write(path, result);
+}
 
 fn parse_input(mut input: Vec<String>) -> Command {
     match input.remove(0).to_lowercase().as_str() {
         "show" => Command::Show(),
         "new" => Command::New(input),
         "edit" => Command::Edit(input),
+        "help" => Command::Help(),
         _ => {
             println!("Invalid command");
             Command::None()
@@ -76,35 +84,6 @@ struct PasswordEntry {
     password: String,
 }
 
-fn new(mut input: Vec<String>, mut list: Vec<PasswordEntry>) -> Vec<PasswordEntry> {
-    let name = input.remove(0);
-    let login = input.remove(0);
-    let pas_str = match input.remove(0).as_str() {
-        "1" => PasswordStrength::Lowercase,
-        "2" => PasswordStrength::Uppercase,
-        "3" => PasswordStrength::Numbers,
-        "4" => PasswordStrength::SpecialCharacters,
-        _ => {
-            println!("Invalid password strength");
-            return list;
-        }
-    };
-    let pas_len = match input.remove(0).parse::<usize>() {
-        Ok(len) => len,
-        Err(_) => {
-            println!("Invalid password length");
-            return list;
-        }
-    };
-    let result = PasswordEntry {
-        name,
-        login,
-        password: generate_password(pas_str, pas_len),
-    };
-    list.push(result);
-    list
-}
-
 impl PasswordEntry {
     fn new(name: String, login: String, password: String) -> Self {
         PasswordEntry {
@@ -134,6 +113,7 @@ enum Command {
     New(Vec<String>),
     Edit(Vec<String>),
     None(),
+    Help(),
 }
 
 impl Command {
@@ -177,6 +157,10 @@ impl Command {
             //FOR LATER: implement edit command
             Self::Edit(input) => list,
             Self::None() => list,
+            Self::Help() => {
+                println!("Help message");
+                list
+            }
         }
     }
 }
