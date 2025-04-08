@@ -5,6 +5,7 @@ static DATA_PATH: &str = "data/passwords.csv";
 static PASSWORD_CHAR_SET: &str =
     "abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUWVXYZ0123456789~`!@#$%^&*()-_+={}[]|:<>,./?";
 fn main() -> std::io::Result<()> {
+    //TODO: get ridf of unwrap nad handle error for save to csv
     let input: Vec<String> = std::env::args().skip(1).collect();
     let password_list = open_csv(DATA_PATH).unwrap();
     let asd = parse_input(input);
@@ -31,32 +32,31 @@ fn open_csv(path: &str) -> Result<Vec<PasswordEntry>, ()> {
     }
     Ok(list_of_entries)
 }
-fn save_to_csv(path: &str, data: Vec<PasswordEntry>) {
+fn save_to_csv(path: &str, data: Vec<PasswordEntry>) -> Result<(), ()> {
     let mut result = String::new();
     for entry in data {
-        let x = entry.name;
-        let y = entry.login;
-        let z = entry.password;
-        result.push_str(&x);
+        result.push_str(&entry.name);
         result.push(';');
-        result.push_str(&y);
+        result.push_str(&entry.login);
         result.push(';');
-        result.push_str(&z);
+        result.push_str(&entry.password);
         result.push('\n');
     }
-    write(path, result);
+    match write(path, result) {
+        Ok(()) => Ok(()),
+        Err(e) => {
+            println!("{e}");
+            return Err(());
+        }
+    }
 }
-
 fn parse_input(mut input: Vec<String>) -> Command {
     match input.remove(0).to_lowercase().as_str() {
         "show" => Command::Show(),
         "new" => Command::New(input),
         "edit" => Command::Edit(input),
         "help" => Command::Help(),
-        _ => {
-            println!("Invalid command");
-            Command::None()
-        }
+        _ => Command::None(),
     }
 }
 
@@ -74,10 +74,6 @@ fn generate_password(password_strength: PasswordStrength, password_length: usize
     }
     return password;
 }
-/*
-FPL new name login pass_len pass_str
-?struct to generate password??
-*/
 struct PasswordEntry {
     name: String,
     login: String,
@@ -156,7 +152,10 @@ impl Command {
             }
             //FOR LATER: implement edit command
             Self::Edit(input) => list,
-            Self::None() => list,
+            Self::None() => {
+                println!("Invalid command. Use help to view valid commands.");
+                list
+            }
             Self::Help() => {
                 println!("Help message");
                 list
