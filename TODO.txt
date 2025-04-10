@@ -3,8 +3,6 @@ FPL new name login pass_len pass_str
 
 - make proper help message
 - resolve error for save_csv fn
-- organize functions into seperate files
-- make proper function names
 - hash passwords
 - make edit command
 - make list command to display only entry names
