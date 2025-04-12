@@ -1,9 +1,8 @@
 CLI parse
 FPL new name login pass_len pass_str
 
-- make proper help message
-- resolve error for save_csv fn
 - hash passwords
+- make proper help message
 - make edit command
 - make list command to display only entry names
 - change show command to display only 1 entry

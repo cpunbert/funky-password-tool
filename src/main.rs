@@ -6,9 +6,9 @@ mod password;
 static DATA_PATH: &str = "data/passwords.csv";
 
 fn main() -> Result<(), ()> {
-    //TODO: get ridf of unwrap nad handle error for save to csv
     let input: Vec<String> = std::env::args().skip(1).collect();
     let Ok(password_list) = parser::open_csv(DATA_PATH) else {
+        println!("Couldn't open file");
         return Err(());
     };
     let command = command::parse(input);
