@@ -1,11 +1,8 @@
 CLI parse
 FPL new name login pass_len pass_str
 
-- hash passwords
+- encrypt/decrypt passwords
 - make proper help message
 - make edit command
 - make list command to display only entry names
 - change show command to display only 1 entry
-
-make own rng
-steganography

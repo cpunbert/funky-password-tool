@@ -1,28 +1,33 @@
 use crate::password;
 pub fn parse(mut input: Vec<String>) -> Command {
     match input.remove(0).to_lowercase().as_str() {
-        "show" => Command::Show(),
+        "show" => Command::Show(input),
         "new" => Command::New(input),
         "edit" => Command::Edit(input),
         "help" => Command::Help(),
+        "list" => Command::List(),
         _ => Command::None(),
     }
 }
 
 pub enum Command {
-    Show(),
+    Show(Vec<String>),
     New(Vec<String>),
     Edit(Vec<String>),
     None(),
     Help(),
+    List(),
 }
 
 impl Command {
     pub fn execute(self, mut list: Vec<password::PasswordEntry>) -> Vec<password::PasswordEntry> {
         match self {
-            Self::Show() => {
+            Self::List() => {
+                let mut i = 1;
                 for entry in &list {
+                    print!(" No. {i}");
                     entry.display();
+                    i += 1;
                 }
                 return list;
             }
@@ -63,6 +68,18 @@ impl Command {
             }
             Self::Help() => {
                 println!("Help message");
+                list
+            }
+            Self::Show(mut input) => {
+                let index = match input.remove(0).parse::<usize>() {
+                    Ok(x) => x,
+                    Err(_) => {
+                        println!("Invalid index");
+                        return list;
+                    }
+                };
+                let entry = &list[index - 1];
+                entry.display();
                 list
             }
         }
