@@ -25,8 +25,8 @@ impl Command {
             Self::List() => {
                 let mut i = 1;
                 for entry in &list {
-                    print!(" No. {i}");
-                    entry.display();
+                    print!(" No.{i}");
+                    entry.list();
                     i += 1;
                 }
                 return list;
@@ -71,15 +71,18 @@ impl Command {
                 list
             }
             Self::Show(mut input) => {
-                let index = match input.remove(0).parse::<usize>() {
-                    Ok(x) => x,
+                let a = input.remove(0);
+                match &a.parse::<usize>() {
+                    Ok(x) => &list[x - 1].display(),
                     Err(_) => {
-                        println!("Invalid index");
+                        for entry in &list {
+                            if entry.name.to_lowercase() == a.to_lowercase() {
+                                entry.display();
+                            }
+                        }
                         return list;
                     }
                 };
-                let entry = &list[index - 1];
-                entry.display();
                 list
             }
         }

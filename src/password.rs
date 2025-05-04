@@ -30,12 +30,14 @@ impl PasswordEntry {
             password,
         }
     }
-
     pub fn display(&self) {
         println!(
-            "\n name:     {}\n login:    {}\n password: {} ",
+            "\n Name:     {}\n Login:    {}\n Password: {} \n",
             self.name, self.login, self.password
         )
+    }
+    pub fn list(&self) {
+        println!("\n Name:{}\n", self.name,)
     }
 }
 
